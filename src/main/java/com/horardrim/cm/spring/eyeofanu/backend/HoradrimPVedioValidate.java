@@ -1,5 +1,9 @@
 package com.horardrim.cm.spring.eyeofanu.backend;
 
+import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssue;
+import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssueCategory;
+import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssueState;
+
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class HoradrimPVedioValidate extends HoradrimESValidate {
+
+    private boolean validateStatus = false;
+
+    private List<HoradrimIssue> issues = new ArrayList<HoradrimIssue>();
 
     @Override
     protected String [] fetchRelatedIndices(final RestHighLevelClient client) throws IOException {
@@ -38,6 +47,7 @@ public class HoradrimPVedioValidate extends HoradrimESValidate {
 
     @Override
     protected void validate(final RestHighLevelClient client, final String indicesName) throws IOException {
+        validateStatus = true;
         SearchRequest searchRequest = new SearchRequest(indicesName);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -59,20 +69,23 @@ public class HoradrimPVedioValidate extends HoradrimESValidate {
                 validateBango(hit.getIndex(), hit.getId(), hit.getSourceAsMap().get("bango").toString());
             }   
         }
-        // logger.info("{} has {} documents, current doc {}.", indicesName, searchResponse.getHits().getTotalHits().value
-        //     , searchResponse.getHits().getHits().length);
         
         ClearScrollRequest clearScrollRequest = new ClearScrollRequest(); 
         clearScrollRequest.addScrollId(searchResponse.getScrollId());
         ClearScrollResponse clearScrollResponse = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
-        // boolean succeeded = clearScrollResponse.isSucceeded();
-        // logger.info("scroll cleared: {}", succeeded);
+        validateStatus = false;
     }
 
     private void validateBango(final String indices, final String id, final String bango) {
         String combinedBango = indices.split("-")[2].toUpperCase() + id;
         if (!combinedBango.equals(bango)) {
-            logger.info("something wrong in index: {} with id {}. Its' bango is {} and combinedBango is {}", indices, id, bango, combinedBango);
+            issues.add(new HoradrimIssue(HoradrimIssueCategory.BANGO_ISSUE,
+                indices, id, String.format("bango(%s) and index(%s/%s) is not consistent", bango, indices, id),
+                System.currentTimeMillis(), HoradrimIssueState.NEW));
         }
+    }
+
+    public List<HoradrimIssue> getVedioIssues() {
+        return issues;
     }
 }

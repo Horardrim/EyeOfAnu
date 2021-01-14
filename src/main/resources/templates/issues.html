@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <title>TITLE IS STILL UNDER THINKING</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" th:href="@{/home_tab_icon.ico}"/>
+</head>
+<body th:style="'background:url(' + @{/issue.page.bg.jpg} + ') no-repeat center center fixed;
+  background-size: cover;'">
+<p th:text="'Hello, ' + ${title}"/><br/>
+<div class="row">
+    <table width="90%" background="#ccc" margin="10px auto" border-collapse="collapse">
+        <thread>
+            <tr>
+                <th>Index</th>
+                <th>Id</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Time</th>
+                <th>State</th>
+            </tr>
+            <tr th:each="issue: ${issues}">
+                <td th:text="${issue.index}"></td>
+                <td th:text="${issue.indexId}"></td>
+                <td th:text="${issue.description}"></td>
+                <td th:text="${issue.issueCategory}"></td>
+                <td th:text="${issue.timestamp}"></td>
+                <td th:text="${issue.issueState}"></td>
+            </tr>
+        </thread>
+    </table>
+</div>
+</body>
+</html>

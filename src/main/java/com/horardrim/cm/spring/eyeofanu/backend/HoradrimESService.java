@@ -34,7 +34,7 @@ public class HoradrimESService {
 
     // @PostConstruct
     // public void backendUp() throws IOException {
-        
+    //     vedioValidator.validateData(restHighLevelClient);
     // }
 
     @PreDestroy
