@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eye-of-anu
+  namespace: horadrim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eye-of-anu
+  template:
+    metadata:
+      labels:
+        app: eye-of-anu
+    spec:
+      containers:
+      - name: eye-of-anu
+        image: eye-of-anu:latest
+        imagePullPolicy: Never
