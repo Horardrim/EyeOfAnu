@@ -3,6 +3,7 @@ package com.horardrim.cm.spring.eyeofanu.backend;
 import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssue;
 import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssueCategory;
 import com.horardrim.cm.spring.eyeofanu.model.issue.HoradrimIssueState;
+import com.horardrim.cm.spring.eyeofanu.dao.HoradrimIssueRepository;
 
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -19,6 +20,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,6 +37,13 @@ public class HoradrimPVedioValidate extends HoradrimESValidate {
     private boolean validateStatus = false;
 
     private List<HoradrimIssue> issues = new ArrayList<HoradrimIssue>();
+
+    @Autowired
+    private HoradrimIssueRepository horadrimIssueRepository;
+
+    public HoradrimPVedioValidate() {
+
+    }
 
     @Override
     protected String [] fetchRelatedIndices(final RestHighLevelClient client) throws IOException {
@@ -79,13 +88,30 @@ public class HoradrimPVedioValidate extends HoradrimESValidate {
     private void validateBango(final String indices, final String id, final String bango) {
         String combinedBango = indices.split("-")[2].toUpperCase() + id;
         if (!combinedBango.equals(bango)) {
-            issues.add(new HoradrimIssue(HoradrimIssueCategory.BANGO_ISSUE,
-                indices, id, String.format("bango(%s) and index(%s/%s) is not consistent", bango, indices, id),
-                System.currentTimeMillis(), HoradrimIssueState.NEW));
+            HoradrimIssue issue = new HoradrimIssue();
+            issue.setVedioIndex(indices);
+            issue.setDocId(id);
+            issue.setCategory(HoradrimIssueCategory.BANGO_ISSUE);
+            issue.setDescription(String.format("bango(%s) and index(%s/%s) is not consistent", bango, indices, id));
+            issue.setReportTime(System.currentTimeMillis());
+            issue.setState(HoradrimIssueState.NEW);
+            issue.setValidatingSession("");
+            issues.add(issue);
+            logger.info("found a issue: {}", issue.getDescription());
+                
         }
     }
 
     public List<HoradrimIssue> getVedioIssues() {
         return issues;
+    }
+
+    @Override
+    protected void saveValidationResult() throws IOException {
+        Iterable<HoradrimIssue> existIssues = horadrimIssueRepository.findAll();
+        logger.info("existIssue has issue: {}", existIssues.iterator().hasNext());
+        if (!issues.isEmpty()) {
+            horadrimIssueRepository.saveAll(issues);
+        }
     }
 }

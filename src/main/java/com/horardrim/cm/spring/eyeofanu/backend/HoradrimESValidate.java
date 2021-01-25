@@ -11,9 +11,12 @@ public abstract class HoradrimESValidate {
         for(String indices : relatedIndices) {
             validate(client, indices);
         }
+        saveValidationResult();
     }
 
     protected abstract String [] fetchRelatedIndices(final RestHighLevelClient client) throws IOException;
 
     protected abstract void validate(final RestHighLevelClient client, final String indicesName) throws IOException;
+
+    protected abstract void saveValidationResult() throws IOException;
 }
