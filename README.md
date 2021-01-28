@@ -9,4 +9,4 @@ I: do containerize and integrate to local k8s
 
 v2.2.0:  
 I: store issues to postgres  
-II: use flyway to manage the migration of db.
+II: use flyway to manage the migration of db.  
