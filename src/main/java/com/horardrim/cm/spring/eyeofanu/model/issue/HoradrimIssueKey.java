@@ -17,7 +17,20 @@ public class HoradrimIssueKey implements Serializable {
 
     private String validatingSession;
 
-    public int hasCode() {
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof HoradrimIssueKey) {
+            HoradrimIssueKey key = (HoradrimIssueKey)o;
+            return (key.vedioIndex == this.vedioIndex &&
+                key.docId == this.docId &&
+                key.category == this.category &&
+                key.validatingSession == this.validatingSession);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
         int result = 0;
         result = result + (vedioIndex == null ? 0 : vedioIndex.hashCode());
         result = result + (docId == null ? 0 : docId.hashCode());
