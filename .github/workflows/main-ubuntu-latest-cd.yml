@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-       - name: Extract tag version
+      - name: Extract tag version
         id: tag_version
         run: |
           export EYE_OF_ANU_VERSION=`. version.sh`
