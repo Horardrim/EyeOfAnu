@@ -44,4 +44,4 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: false
-          tags: ${{ steps.tag_version.outputs.value }}-SNAPSHOT
+          tags: ${{ steps.tag_version.outputs.value }}-snapshot
