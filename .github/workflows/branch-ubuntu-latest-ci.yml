@@ -28,6 +28,12 @@ jobs:
         with:
           java-version: 8
 
+      - name: Extract tag version
+        id: tag_version
+        run: |
+          export EYE_OF_ANU_VERSION=`. version.sh`
+          echo "::set-output name=value::$EYE_OF_ANU_VERSION"
+
       - name: Build	by Maven
         run: mvn -B clean package
 
